@@ -27,10 +27,20 @@
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
+  <script src="assets/js/loader.js"></script>
 
 </head>
 
 <body>
+
+<!-- ======= Loader ======= -->
+  <div id="loader">
+    <div class="loader-container">
+        <img src="assets/img/Puzzle (blanco).png" alt="" class="loader-image">
+        <p class="loader-text">¡Por favor, espera un momento!</p>
+    </div>
+  </div>
+<!-- ======= End Loader ======= -->
 
   <!-- ======= Header ======= -->
   <header id="header" class="fixed-top d-flex align-items-center header-transparent">
@@ -49,10 +59,22 @@
               <li><a href="about.html">¿Quiénes Somos?</a></li>
               <li><a href="team.html">Nuestro Equipo</a></li>
             </ul>
-          <li><a href="services.html">Servicios</a></li>
-          <li><a href="">Proyectos</a></li>
-          <li><a href="web_no_disponible.html">Estadísticas</a></li>
-          <li><a href="web_no_disponible.html">Blog</a></li>
+
+            <li class="dropdown"><a href="#"><span>Servicios</span> <i class="bi bi-chevron-down"></i></a>
+              <ul>
+                <li><a href="servicios-diversidadfunc.html">Diversidad Funcional</a></li>
+                <li><a href="servicios-terceraedad.html">Tercera Edad</a></li>
+                <li><a href="campus.html">Campus Virtual</a></li>
+              </ul>
+
+              <li class="dropdown"><a href="#"><span>Catálogo</span> <i class="bi bi-chevron-down"></i></a>
+                <ul>
+                  <li><a href="">Procedimientos</a></li>
+                  <li><a href="">Base de Datos</a></li>
+                  <li><a href="">Proyectos Institucionales</a></li>
+                  <li><a href="">Estadísticas</a></li>
+                </ul>
+
           <li class="dropdown"><a href="#"><span>Recursos</span> <i class="bi bi-chevron-down"></i></a>
             <ul>
               <li><a href="">Ayudas | Subvenciones</a></li>
@@ -70,6 +92,8 @@
               <li><a href="#">Educación | Formación</a></li>
             </ul>
           </li>
+
+          <li><a href="idelia.html">iDelia</a></li>
           <li><a href="transparencia.html">Transparencia</a></li>
           <li><a href="contact.html">Contacto</a></li>
         </ul>
@@ -94,8 +118,8 @@
       <!-- Slide 2 -->
       <div class="carousel-item">
         <div class="carousel-container">
-          <h2 class="animate__animated animate__fadeInDown">¡Házte socio!</h2>
-          <p class="animate__animated animate__fadeInUp">Al hacerte socio/a, formarás parte de un grupo comprometido con nuestra misión y disfrutarás de beneficios exclusivos.</p>
+          <h2 class="animate__animated animate__fadeInDown">¡HÁZTE SOCIO!</h2>
+          <p class="animate__animated animate__fadeInUp">Al hacerte socio, formarás parte de un grupo comprometido con nuestra misión.</p>
           <a href="web_no_disponible.html" class="btn-get-started animate__animated animate__fadeInUp">QUIERO SER SOCIO</a>
         </div>
       </div>
@@ -103,7 +127,7 @@
       <!-- Slide 3 -->
       <div class="carousel-item">
         <div class="carousel-container">
-          <h2 class="animate__animated animate__fadeInDown">¡Tu donación puede marcar la diferencia!</h2>
+          <h2 class="animate__animated animate__fadeInDown">¡TU DONACIÓN PUEDE MARCAR LA DIFERENCIA!</h2>
           <p class="animate__animated animate__fadeInUp"> Con tu donación, estarás contribuyendo directamente a proyectos que impactan positivamente en la comunidad. Cada aporte, grande o pequeño, nos ayuda a continuar con nuestra labor y a llegar más lejos. Haz tu donación y conviértete en parte del cambio.</p>
           <a href="web_no_disponible.html" class="btn-get-started animate__animated animate__fadeInUp">QUIERO DONAR</a>
         </div>
@@ -225,6 +249,19 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" data-aos="fade-up" data-aos-easing="ease-in-out" data-aos-duration="500">
 
+    <div class="footer-newsletter">
+      <div class="container">
+        <div class="row">
+          <h4>INSTITUCIONES COLABORADORAS</h4>
+          <div class="col-lg-12">
+            <img src="assets/img/Ayunta_Logo.png" alt="250" width="100">
+            <img src="assets/img/gobcan.png" alt="400" width="220">
+            <img src="assets/img/blog/cabildo.png" alt="300" width="110">
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="footer-top">
       <div class="container">
         <div class="row">
@@ -261,7 +298,7 @@
 
           <div class="col-lg-3 col-md-6 footer-info">
             <h3>SOBRE NOSOTROS</h3>
-            <p>DELIA SUR es una organización sin ánimo de lucro de carácter social, fundada en el año 2024 en el municipio de Arona, Tenerife.</p>
+            <p>DELIA Sur es una organización sin ánimo de lucro de carácter social, fundada en el año 2024 en el municipio de Arona, Tenerife.</p>
             <div class="social-links mt-3">
               <a href="https://www.facebook.com/profile.php?id=61567689411263" target="_blank" class="facebook"><i class="bx bxl-facebook"></i></a>
               <a href="https://www.instagram.com/asociaciondeliasur/" target="_blank" class="instagram"><i class="bx bxl-instagram"></i></a>
