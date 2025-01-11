@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mapa de Contenedor - El Fraile, Arona</title>
+  <title>Mapa de Contenedores - El Fraile, Arona</title>
+  <!-- Incluir CSS de Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <style>
     body, html {
       margin: 0;
@@ -14,7 +16,15 @@
     }
     #map {
       width: 100%;
-      height: 100vh;
+      height: 100vh; /* El mapa ocupa toda la altura de la ventana */
+    }
+    .info {
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      max-width: 250px;
+      text-align: center; /* Centrar el texto */
     }
     .form-popup {
       position: absolute;
@@ -28,7 +38,7 @@
       z-index: 1000;
       display: none;
     }
-    .form-popup input, .form-popup textarea, .form-popup select {
+    .form-popup input, .form-popup textarea {
       width: 100%;
       margin-bottom: 10px;
       padding: 8px;
@@ -37,15 +47,22 @@
     }
     .form-popup button {
       margin-right: 10px;
-      padding: 8px 15px;
+      padding: 12px 20px;
       background-color: #4CAF50;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      width: 100%; /* Asegura que el botón ocupe todo el ancho */
+      font-size: 16px; /* Aumenta el tamaño de la fuente */
+      text-align: center;
+      box-sizing: border-box;
     }
     .form-popup button.cancel {
       background-color: #f44336;
+    }
+    .form-popup button:hover {
+      opacity: 0.8; /* Añadir un efecto hover para el botón */
     }
   </style>
 </head>
@@ -56,100 +73,129 @@
   <div class="form-popup" id="form-popup">
     <h3>Reportar Incidencia</h3>
     <input type="text" id="user-name" placeholder="Tu Nombre" required />
-    <input type="email" id="user-email" placeholder="Tu Correo Electrónico" required />
-    <input type="tel" id="user-phone" placeholder="Tu Número de Teléfono" required />
     <textarea id="incident-desc" placeholder="Descripción de la incidencia" required></textarea>
-    <input type="file" id="incident-image" accept="image/*" required />
-    <input type="time" id="incident-time" required />
+    <input type="file" id="incident-image" accept="image/*" />
+    <input type="text" id="user-contact" placeholder="Tu contacto (email o teléfono)" required />
+    <input type="text" id="incident-time" placeholder="Hora de la incidencia" required />
     <button id="send-incident">Enviar Incidencia</button>
     <button class="cancel" id="cancel-incident">Cancelar</button>
   </div>
 
   <script>
-    // Crear el mapa centrado en las coordenadas indicadas
-    const map = L.map('map').setView([28.014263, -16.669863], 18);
+    // Coordenadas de El Fraile, Tenerife
+    const map = L.map('map').setView([28.012575, -16.669556], 16); // Ajustamos el nivel de zoom para que cubra El Fraile
 
-    // Añadir capas de OpenStreetMap
+    // Añadir las capas de OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
       maxZoom: 19
     }).addTo(map);
 
-    // Información del contenedor único
-    const container = {
-      lat: 28.014263,
-      lng: -16.669863,
-      name: 'Contenedor Principal',
-      description: 'Contenedor de residuos sólidos urbanos.',
-      image: './assets/img/ana.jpg' // Ruta local de la imagen
-    };
+    // Contenedores con foto inicial, calle y horario de recogida
+    const containers = [
+      { lat: 28.014268, lng: -16.669848, name: 'Punto de Recogida', description: 'Vidrio, Plástico, Orgánico', street: 'C/Miguel Calcerrada', schedule: 'Lunes - Viernes: 19:00H - 21:00H', image: './assets/img/ana.jpg' },
+    ];
 
-    // Añadir marcador al mapa
-    const marker = L.marker([container.lat, container.lng]).addTo(map);
-    marker.bindPopup(`
-      <div style="text-align: center;">
-        <b style="font-size: 16px;">${container.name}</b>
-      </div>
-      <div style="margin-top: 8px;">
-        ${container.description}
-      </div>
-      <img src="${container.image}" alt="Imagen del contenedor" style="max-width: 100%; border-radius: 8px; margin-top: 10px;"/><br>
-      <button onclick="openForm('${container.name}', ${container.lat}, ${container.lng})">Reportar Incidencia</button>
-    `);
+    // Añadir marcadores de contenedores en El Fraile
+    containers.forEach(container => {
+      const marker = L.marker([container.lat, container.lng]).addTo(map);
+      marker.bindPopup(`
+        <b style="text-align: center;">${container.name}</b><br>
+        <span><strong>Calle:</strong> ${container.street}</span><br>
+        <span><strong>Horario:</strong> ${container.schedule}</span><br>
+        <span><strong>Descripción:</strong> ${container.description}</span><br>
+        <img src="${container.image || 'https://via.placeholder.com/150'}" alt="Imagen del contenedor" style="max-width: 100%; border-radius: 8px;"/><br>
+        <button onclick="reportIncident('${container.name}', ${container.lat}, ${container.lng}, this)">Reportar Incidencia</button>
+      `);
+      container.marker = marker; // Guardar el marcador de cada contenedor para futuras actualizaciones
+    });
 
-    // Abrir el formulario emergente
-    function openForm(name, lat, lng) {
+    // Función para abrir el formulario de reporte de incidencia
+    function reportIncident(name, lat, lng, btnElement) {
+      // Mostrar el formulario
       const formPopup = document.getElementById('form-popup');
       formPopup.style.display = 'block';
+      
+      // Guardar latitud y longitud del contenedor
+      window.lastClickedLatLng = { lat, lng };
 
-      // Guardar datos del contenedor seleccionado
-      window.lastClickedContainer = { name, lat, lng };
+      // Colocar el nombre del contenedor en el formulario
+      document.getElementById('user-name').value = name;
+      document.getElementById('incident-image').value = ''; // Limpiar el campo de imagen
+      document.getElementById('user-contact').value = ''; // Limpiar campo de contacto
+      document.getElementById('incident-time').value = ''; // Limpiar campo de hora
     }
 
-    // Enviar incidencia
-    document.getElementById('send-incident').addEventListener('click', () => {
+    // Enviar incidencia por EmailJS
+    const sendIncidentBtn = document.getElementById('send-incident');
+    sendIncidentBtn.addEventListener('click', () => {
       const name = document.getElementById('user-name').value.trim();
-      const email = document.getElementById('user-email').value.trim();
-      const phone = document.getElementById('user-phone').value.trim();
       const desc = document.getElementById('incident-desc').value.trim();
-      const file = document.getElementById('incident-image').files[0];
+      const contact = document.getElementById('user-contact').value.trim();
       const time = document.getElementById('incident-time').value.trim();
+      const file = document.getElementById('incident-image').files[0];
 
-      // Validación de campos obligatorios
-      if (!name || !email || !phone || !desc || !file || !time) {
-        alert('Todos los campos son obligatorios. Por favor, completa todos los campos.');
+      if (!name || !desc || !contact || !time) {
+        alert("Por favor, ingresa todos los campos requeridos.");
         return;
       }
 
-      const container = window.lastClickedContainer;
       let imgTag = '';
-
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
           imgTag = `<img src="${e.target.result}" alt="Imagen de la Incidencia" style="max-width: 100%; border-radius: 8px;"/>`;
-          alert(`Incidencia enviada para ${container.name}.\nNombre: ${name}\nCorreo: ${email}\nTeléfono: ${phone}\nDescripción: ${desc}\nHora: ${time}\nLat: ${container.lat}\nLng: ${container.lng}`);
-          closeForm();
+          sendIncidentData(name, desc, contact, time, imgTag);
         };
         reader.readAsDataURL(file);
       } else {
-        alert(`Incidencia enviada para ${container.name}.\nNombre: ${name}\nCorreo: ${email}\nTeléfono: ${phone}\nDescripción: ${desc}\nHora: ${time}\nLat: ${container.lat}\nLng: ${container.lng}`);
-        closeForm();
+        sendIncidentData(name, desc, contact, time, imgTag);
       }
     });
 
-    // Cerrar el formulario emergente
-    document.getElementById('cancel-incident').addEventListener('click', closeForm);
+    // Función para enviar la incidencia
+    function sendIncidentData(name, desc, contact, time, imgTag) {
+      const lat = window.lastClickedLatLng.lat;
+      const lng = window.lastClickedLatLng.lng;
 
-    function closeForm() {
-      document.getElementById('form-popup').style.display = 'none';
+      // Preparar los datos del correo
+      const templateParams = {
+        user_name: name,
+        incident_desc: desc,
+        contact: contact,
+        incident_time: time,
+        lat: lat.toFixed(6),
+        lng: lng.toFixed(6),
+        image: imgTag || 'No se adjuntó imagen'
+      };
+
+      // Enviar el correo usando EmailJS
+      emailjs.send('service_jhwb5yj', 'template_px1kuul', templateParams)
+        .then(function(response) {
+          alert('Incidencia reportada correctamente!');
+          document.getElementById('form-popup').style.display = 'none'; // Cerrar el formulario
+          clearForm(); // Limpiar el formulario
+        }, function(error) {
+          alert('Ocurrió un error. Por favor, intenta nuevamente.');
+          console.error(error);
+        });
+    }
+
+    // Limpiar el formulario
+    function clearForm() {
       document.getElementById('user-name').value = '';
-      document.getElementById('user-email').value = '';
-      document.getElementById('user-phone').value = '';
       document.getElementById('incident-desc').value = '';
       document.getElementById('incident-image').value = '';
+      document.getElementById('user-contact').value = '';
       document.getElementById('incident-time').value = '';
     }
+
+    // Cancelar el formulario
+    const cancelIncidentBtn = document.getElementById('cancel-incident');
+    cancelIncidentBtn.addEventListener('click', () => {
+      document.getElementById('form-popup').style.display = 'none';
+      clearForm();
+    });
   </script>
 </body>
 </html>
