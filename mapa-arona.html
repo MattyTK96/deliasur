@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Contenedor - El Fraile, Arona</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+    .form-popup {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: none;
+    }
+    .form-popup input, .form-popup textarea, .form-popup select {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-popup button {
+      margin-right: 10px;
+      padding: 8px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .form-popup button.cancel {
+      background-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Formulario emergente para reporte de incidencia -->
+  <div class="form-popup" id="form-popup">
+    <h3>Reportar Incidencia</h3>
+    <input type="text" id="user-name" placeholder="Tu Nombre" required />
+    <input type="email" id="user-email" placeholder="Tu Correo Electrónico" required />
+    <input type="tel" id="user-phone" placeholder="Tu Número de Teléfono" required />
+    <textarea id="incident-desc" placeholder="Descripción de la incidencia" required></textarea>
+    <input type="file" id="incident-image" accept="image/*" required />
+    <input type="time" id="incident-time" required />
+    <button id="send-incident">Enviar Incidencia</button>
+    <button class="cancel" id="cancel-incident">Cancelar</button>
+  </div>
+
+  <script>
+    // Crear el mapa centrado en las coordenadas indicadas
+    const map = L.map('map').setView([28.014263, -16.669863], 18);
+
+    // Añadir capas de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    // Información del contenedor único
+    const container = {
+      lat: 28.014263,
+      lng: -16.669863,
+      name: 'Contenedor Principal',
+      description: 'Contenedor de residuos sólidos urbanos.',
+      image: './assets/img/ana.jpg' // Ruta local de la imagen
+    };
+
+    // Añadir marcador al mapa
+    const marker = L.marker([container.lat, container.lng]).addTo(map);
+    marker.bindPopup(`
+      <div style="text-align: center;">
+        <b style="font-size: 16px;">${container.name}</b>
+      </div>
+      <div style="margin-top: 8px;">
+        ${container.description}
+      </div>
+      <img src="${container.image}" alt="Imagen del contenedor" style="max-width: 100%; border-radius: 8px; margin-top: 10px;"/><br>
+      <button onclick="openForm('${container.name}', ${container.lat}, ${container.lng})">Reportar Incidencia</button>
+    `);
+
+    // Abrir el formulario emergente
+    function openForm(name, lat, lng) {
+      const formPopup = document.getElementById('form-popup');
+      formPopup.style.display = 'block';
+
+      // Guardar datos del contenedor seleccionado
+      window.lastClickedContainer = { name, lat, lng };
+    }
+
+    // Enviar incidencia
+    document.getElementById('send-incident').addEventListener('click', () => {
+      const name = document.getElementById('user-name').value.trim();
+      const email = document.getElementById('user-email').value.trim();
+      const phone = document.getElementById('user-phone').value.trim();
+      const desc = document.getElementById('incident-desc').value.trim();
+      const file = document.getElementById('incident-image').files[0];
+      const time = document.getElementById('incident-time').value.trim();
+
+      // Validación de campos obligatorios
+      if (!name || !email || !phone || !desc || !file || !time) {
+        alert('Todos los campos son obligatorios. Por favor, completa todos los campos.');
+        return;
+      }
+
+      const container = window.lastClickedContainer;
+      let imgTag = '';
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imgTag = `<img src="${e.target.result}" alt="Imagen de la Incidencia" style="max-width: 100%; border-radius: 8px;"/>`;
+          alert(`Incidencia enviada para ${container.name}.\nNombre: ${name}\nCorreo: ${email}\nTeléfono: ${phone}\nDescripción: ${desc}\nHora: ${time}\nLat: ${container.lat}\nLng: ${container.lng}`);
+          closeForm();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert(`Incidencia enviada para ${container.name}.\nNombre: ${name}\nCorreo: ${email}\nTeléfono: ${phone}\nDescripción: ${desc}\nHora: ${time}\nLat: ${container.lat}\nLng: ${container.lng}`);
+        closeForm();
+      }
+    });
+
+    // Cerrar el formulario emergente
+    document.getElementById('cancel-incident').addEventListener('click', closeForm);
+
+    function closeForm() {
+      document.getElementById('form-popup').style.display = 'none';
+      document.getElementById('user-name').value = '';
+      document.getElementById('user-email').value = '';
+      document.getElementById('user-phone').value = '';
+      document.getElementById('incident-desc').value = '';
+      document.getElementById('incident-image').value = '';
+      document.getElementById('incident-time').value = '';
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
