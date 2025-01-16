@@ -9,6 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
+            <!-- CSS Styles-->
   <style>
     body, html {
       margin: 0;
@@ -53,7 +55,7 @@
       display: block;
       margin: 10px auto 0 auto;
       padding: 8px 12px;
-      background-color: black;
+      background-color:  #4CAF50;
       color: white;
       border: none;
       border-radius: 6px;
@@ -63,7 +65,7 @@
     }
 
     .report-incident-btn:hover {
-      background-color: #b02a2a;
+      background-color: black;
       color: white;
       transition: 0.5s ease;
     }
@@ -144,6 +146,42 @@
   color: #FFEB3B; /* Icono amarillo para el sol */
 }
 
+.floating-button-stats{
+  background-color: brown;
+}
+
+.stats-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  display: none;
+  max-width: 400px;
+  width: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+.stats-box h3 {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.stats-box p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+
     /* Ventanas emergentes */
     .tips-box {
       position: fixed;
@@ -223,11 +261,51 @@
     color: blue;
   }
 
+  .legend {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    font-size: 12px;
+    z-index: 1000;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+
+  .legend-color {
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    border-radius: 3px;
+  }
+
+  .legend-text {
+    flex-grow: 1;
+  }
+
   </style>
 </head>
 <body>
   <div id="map"></div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-color" style="background: rgba(0, 122, 255, 0.8)"></div>
+      <div class="legend-text">Punto de Recogida de Residuos</div>
+    </div>
+  </div>
+
   <div class="floating-buttons">
+    <button class="floating-button floating-button-stats" onclick="toggleStats()">
+      <i class="fas fa-chart-line"></i>
+  </button>
     <button class="floating-button floating-button-night" onclick="toggleNightMode()">
       <i class="fas fa-moon"></i>
     </button>
@@ -241,6 +319,17 @@
       <i class="fas fa-info-circle"></i>
     </button>
   </div>
+
+
+ <!-- Recuadro de estadísticas -->
+ <div class="stats-box" id="stats-box">
+  <h3>ESTADÍSTICAS POBLACIONALES</h3>
+  <p><strong>Población Total:</strong> 13.064 habitantes</p>
+  <p><strong>Área Total:</strong> 2.03km²</p>
+  <p><strong>Densidad Poblacional:</strong> 6.436 habitantes por km²</p>
+  <p><strong>Puntos de Recogida:</strong> 9</p>
+  <p><strong>Habitantes por Punto de Recogida:</strong> 1.454</p>
+</div>
 
   <!-- Ventanas emergentes -->
   <div class="tips-box" id="contact-tips">
@@ -340,7 +429,6 @@
   }
 });
 
-
 // Simular puntos para la capa de calor (reemplaza con tus datos reales)
 const heatPoints = [
   [28.014264, -16.669860, 1], // lat, lng, intensidad
@@ -355,7 +443,6 @@ const heatLayer = L.heatLayer(heatPoints, {
 
 // Añadir la capa de calor al mapa
 heatLayer.addTo(map);
-
 
     function toggleContact() {
       const contactTips = document.getElementById("contact-tips");
@@ -383,6 +470,16 @@ heatLayer.addTo(map);
     function closeInfoTips() {
       document.getElementById("info-tips").style.display = "none";
     }
+
+// Función para mostrar u ocultar el recuadro de estadísticas
+function toggleStats() {
+    const statsBox = document.getElementById("stats-box");
+    statsBox.style.display = (statsBox.style.display === "block") ? "none" : "block";
+  }
+
+  function closeStats() {
+    document.getElementById("stats-box").style.display = "none";
+  }
 
     function reportIncident() {
       window.open("https://forms.gle/xHA1kTnEdZ4c57xw8", "_blank");
@@ -424,21 +521,6 @@ function toggleNightMode() {
   }
   isNightMode = !isNightMode;  // Alterna el estado del modo
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   </script>
 </body>
 </html>
