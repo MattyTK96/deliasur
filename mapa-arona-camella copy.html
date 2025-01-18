@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es-Es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Contenedores - La Camella, Arona</title>
+  <link rel="icon" href="assets/img/arona.png" type="image/png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<!-- CSS STYLES -->
+<style>
+  body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+#map {
+  width: 100%;
+  height: 100vh;
+}
+
+.info {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  max-width: 280px;
+  font-size: 14px;
+}
+
+.zona-recogida {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #4CAF50;
+}
+
+.info-text {
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.report-incident-btn {
+  display: block;
+  margin: 10px auto 0 auto;
+  padding: 8px 12px;
+  background-color:  #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.report-incident-btn:hover {
+  background-color: black;
+  color: white;
+  transition: 0.5s ease;
+}
+
+    /* Estilos de Botones Flotantes */
+.floating-buttons {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.floating-button {
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  font-size: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.floating-button:hover {
+  transform: scale(1.1);
+  background-color: #B0BEC5;
+}
+
+.floating-button-contact {
+  background-color: #1E88E5;
+}
+
+.floating-button-faq {
+  background-color: #FBC02D;
+}
+
+.floating-button-info {
+  background-color: #E53935;
+}
+
+.floating-button-stats{
+  background-color: #8E24AA;
+}
+
+/* Estilo para el botón de modo nocturno */
+.floating-button-night {
+  background-color: #333333; /* Fondo oscuro por defecto */
+  color: white; /* Texto blanco */
+  border: none;
+  border-radius: 50%; /* Hacer el botón redondo */
+  width: 65px; /* Ancho del botón */
+  height: 65px; /* Alto del botón */
+  font-size: 30px; /* Tamaño de la fuente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Sombra del botón */
+  cursor: pointer; /* Cambiar el cursor cuando pase por encima */
+  transition: background-color 0.3s, transform 0.3s; /* Transición suave para el hover */
+}
+
+/* Efecto hover para el botón de modo nocturno */
+.floating-button-night:hover {
+  background-color: #555555; /* Fondo más claro al pasar el ratón */
+  transform: scale(1.1); /* Aumentar el tamaño ligeramente */
+}
+
+/* Estilo cuando el modo nocturno está activo (fondo amarillo y sol) */
+.floating-button-night.sun-mode {
+  background-color: #FFEB3B;  /* Fondo amarillo para el sol */
+}
+
+/* Icono del sol */
+.floating-button-night i.fa-sun {
+  color: #FFEB3B; /* Icono amarillo para el sol */
+}
+
+.stats-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  display: none;
+  max-width: 400px;
+  width: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+.stats-box h3 {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.stats-box p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.tips-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  display: none;
+  max-width: 400px;
+  width: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.tips-box h3 {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.tips-box p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.tips-box button {
+  display: block;
+  margin: 20px auto 0 auto;  /* Centra el botón en el contenedor */
+  padding: 8px 12px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.contact-info {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.contact-info strong {
+  font-weight: bold;
+}
+
+.contact-logo {
+  max-width: 150px;
+  height: auto;
+  margin-bottom: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.faq-item {
+  font-size: 12px;
+  color: black;
+  cursor: pointer;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.faq-item:hover {
+  color: blue;
+}
+
+.legend {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  z-index: 1000;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legend-color {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+  border-radius: 3px;
+}
+
+.legend-text {
+  flex-grow: 1;
+}
+
+.close-btn {
+  display: block;
+  margin: 20px auto 0 auto;  /* Centra el botón en el contenedor */
+  padding: 8px 12px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Estilos adicionales para los iconos personalizados */
+.dog-poop-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      color: brown;
+    }
+
+.incident-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: black;
+  background: grey;
+}
+
+.incident-farola-icon{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: #ffc200;
+}
+
+
+</style>
+</head>
+<!-- END CSS STYLES -->
+<!-- END HEADER -->
+
+<body>
+  <div id="map"></div>
+
+  <!-- LEYENDA -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-color" style="background: rgba(0, 122, 255, 0.8)"></div>
+      <div class="legend-text">Punto de Recogida de Residuos</div>
+    </div>
+  </div>
+
+  <!-- BOTONES FLOTANTES -->
+  <div class="floating-buttons">
+    <button class="floating-button floating-button-stats" onclick="toggleStats()">
+      <i class="fas fa-chart-bar"></i>
+  </button>
+    <button class="floating-button floating-button-night" onclick="toggleNightMode()">
+      <i class="fas fa-moon"></i>
+    </button>
+    <button class="floating-button floating-button-contact" onclick="toggleContact()">
+      <i class="fas fa-envelope"></i>
+    </button>
+    <button class="floating-button floating-button-faq" onclick="toggleFAQ()">
+      <i class="fas fa-question-circle"></i>
+    </button>
+    <button class="floating-button floating-button-info" onclick="toggleInfo()">
+      <i class="fas fa-info-circle"></i>
+    </button>
+  </div>
+
+  <!-- RECUADRO ESTADÍSTICAS -->
+ <div class="stats-box" id="stats-box">
+  <h3>ESTADÍSTICAS POBLACIONALES</h3>
+  <p><strong>Población Total:</strong> 4'256 habitantes.</p>
+  <p><strong>Área Total:</strong> 8.63km²</p>
+  <p><strong>Densidad Poblacional:</strong> 493.4 habitantes por km².</p>
+  <p><strong>Puntos de Recogida:</strong> 7.</p>
+  <p><strong>Habitantes por Punto de Recogida:</strong> 608 habitantes.</p>
+  <p><strong>Cantidad de Residuos Generados Anualmente:</strong> No Disponible.</p>
+  <p><strong>Tasa de Reciclaje:</strong> No Disponible.</p>
+  <p><strong>Generación de Resiudos por Habitante:</strong> No Disponible.</p>
+  <p><strong>Índice de Calidad del Aire:</strong> No Disponible.</p>
+  <p><strong>Índice Sostenibilidad</strong> No Disponible.</p>
+  <button class="close-btn" onclick="closeStats()">Cerrar</button>
+</div>
+
+  <!-- RECUADRO CONTACTO -->
+  <div class="tips-box" id="contact-tips">
+    <img src="assets/img/logo_ayuntamiento_arona.png" alt="Logo Ayuntamiento" class="contact-logo">
+    <p class="contact-info"><strong>Entidad Responsable:</strong> Ayuntamiento de Arona</p>
+    <p class="contact-info"><strong>Concejala del Área de Medio Ambiente:</strong> Dña.María Clara Pérez Pérez</p>
+    <p class="contact-info"><strong>Teléfono:</strong> 922 76 16 00</p>
+    <p class="contact-info"><strong>Correo Electrónico:</strong> portalweb@arona.org</p>
+    <p class="contact-info"><strong>Dirección:</strong> Pl. Cristo de la Salud, 1, 38640 Arona, Santa Cruz de Tenerife</p>
+    <button onclick="closeContactTips()">Cerrar</button>
+  </div>
+
+  <!-- RECUADRO FAQ -->
+  <div class="tips-box" id="faq-tips">
+    <h3>PREGUNTAS FRECUENTES</h3>
+    <div class="faq-item">¿Cómo se recogen los residuos orgánicos?</div>
+    <div class="faq-item">¿Qué tipo de plásticos se pueden reciclar?</div>
+    <div class="faq-item">¿Dónde puedo reportar un problema?</div>
+    <div class="faq-item">¿Cómo saber el horario de los contenedores?</div>
+    <div class="faq-item">¿Qué hago si un contenedor está lleno?</div>
+    <button onclick="closeFAQ()">Cerrar</button>
+  </div>
+
+  <!-- RECUADRO INFORMACIÓN ADICIONAL -->
+  <div class="tips-box" id="info-tips">
+    <h3>Información Adicional</h3>
+    <p><strong>Recuerda:</strong> juntos podemos mantener nuestro municipio limpio y agradable. Cada pequeña acción cuenta para cuidar nuestro entorno.</p>
+    <button onclick="closeInfoTips()">Cerrar</button>
+  </div>
+
+  <!-- FUNCIONES JAVASCRIPT -->
+  <script>
+
+    // FUNCIÓN PARA MOSTRAR EL MAPA DESDE UNA UBICACIÓN DETERMINADA //
+    const map = L.map('map').setView([28.0789, -16.6822], 17);
+  
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+ 
+    // LOCALIZACIONES DE CONTENEDORES CON NIVELES DE LLENADO //
+const containers = [
+  { lat: 28.078255, lng: -16.681473, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'Carretera General, 30 TF-28', hours: 'De 20:00 a 22:00', image: './assets/img/camella1.png', fillLevel: 0 },
+  { lat: 28.078017, lng: -16.680183, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'Camino "Los Chijafes", 10', hours: 'De 20:00 a 22:00', image: './assets/img/camella2.png', fillLevel: 100 },
+  { lat: 28.077939, lng: -16.682653, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'C/Bejeque, 15', hours: 'De 20:00 a 22:00', image: './assets/img/camella3.png', fillLevel: 14 },
+  { lat: 28.078924, lng: -16.682490, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'Carretera General, TF-51', hours: 'De 20:00 a 22:00', image: './assets/img/camella4.png', fillLevel: 50 },
+  { lat: 28.078166, lng: -16.682503, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 21', hours: 'De 20:00 a 22:00', image: './assets/img/camella5.png', fillLevel: 0 },
+  { lat: 28.077966, lng: -16.681649, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 3', hours: 'De 20:00 a 22:00', image: './assets/img/camella6.png', fillLevel: 0 },
+  { lat: 28.077953, lng: -16.681518, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 1', hours: 'De 20:00 a 22:00', image: './assets/img/camella7.png', fillLevel: 0 },
+];
+// FIN DATOS DE LOCALIZACIONES //
+
+// AGREGA MARCADORES AL MAPA Y CALCULA EL CONTENEDOR MÁS CERCANO //
+containers.forEach((container, index) => {
+  const marker = L.marker([container.lat, container.lng]).addTo(map);
+
+  let nearestContainer = null;
+  let minDistance = Infinity;
+
+  containers.forEach((other, otherIndex) => {
+    if (index !== otherIndex) {
+      const distance = map.distance([container.lat, container.lng], [other.lat, other.lng]); // Distancia en metros
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestContainer = other;
+      }
+    }
+  });
+
+  const nearestInfo = nearestContainer
+    ? `<div class="info-text"><strong>Depósito Cercano:</strong> ${nearestContainer.street} (${minDistance.toFixed(2)}m)</div>`
+    : '';
+
+  // ABRE EL POPUP CON LOS DETALLES DE CADA MARCADOR //
+  marker.bindPopup(`
+    <div class="zona-recogida">${container.name}</div>
+    <div class="info-text"><strong>Descripción:</strong> ${container.description}</div>
+    <div class="info-text"><strong>Ubicación:</strong> ${container.street}</div>
+    <div class="info-text"><strong>Horario de Recogida:</strong> ${container.hours}</div>
+    ${nearestInfo}
+    <div class="progress-bar" style="background-color: #f3f3f3; border-radius: 5px; height: 10px;">
+      <div style="width: ${container.fillLevel}%; background-color: ${getFillLevelColor(container.fillLevel)}; height: 100%; border-radius: 5px;"></div>
+    </div>
+    <div class="info-text">${container.fillLevel}%</div>
+    <img src="${container.image}" alt="Contenedor">
+    <button class="report-incident-btn" onclick="reportIncident()">REPORTAR INCIDENCIA</button>
+  `);
+});
+
+// FUNCIONES PARA CAMBIO DE COLOR DE LA BARRA DE PROGRESO //
+function getFillLevelColor(fillLevel) {
+  if (fillLevel >= 80) {
+    return '#FF5733'; // Rojo (alto nivel de llenado)
+  } else if (fillLevel >= 50) {
+    return '#F1C40F'; // Amarillo (nivel moderado)
+  } else {
+    return '#2ECC71'; // Verde (bajo nivel de llenado)
+  }
+}
+
+    // INICIO DE FUNCIONES DE BOTONES FLOTANTES //
+    function toggleContact() {
+      const contactTips = document.getElementById("contact-tips");
+      contactTips.style.display = (contactTips.style.display === "block") ? "none" : "block";
+    }
+
+    function closeContactTips() {
+      document.getElementById("contact-tips").style.display = "none";
+    }
+
+    function toggleFAQ() {
+      const faqTips = document.getElementById("faq-tips");
+      faqTips.style.display = (faqTips.style.display === "block") ? "none" : "block";
+    }
+
+    function closeFAQ() {
+      document.getElementById("faq-tips").style.display = "none";
+    }
+
+    function toggleInfo() {
+      const infoTips = document.getElementById("info-tips");
+      infoTips.style.display = (infoTips.style.display === "block") ? "none" : "block";
+    }
+
+    function closeInfoTips() {
+      document.getElementById("info-tips").style.display = "none";
+    }
+
+    function toggleStats() {
+      const statsBox = document.getElementById("stats-box");
+      statsBox.style.display = (statsBox.style.display === "block") ? "none" : "block";
+    }
+
+    function closeStats() {
+      document.getElementById("stats-box").style.display = "none";
+    }
+
+      // Capa de mapa de día y noche
+let dayLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+  maxZoom: 19
+}).addTo(map);
+
+let nightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.cartodb.com/attributions">CartoDB</a>',
+  maxZoom: 19
+});
+
+      // Variable para controlar el modo
+let isNightMode = false;
+
+function toggleNightMode() {
+  if (isNightMode) {
+    map.removeLayer(nightLayer);  // Elimina la capa nocturna
+    map.addLayer(dayLayer);  // Vuelve al mapa diurno
+    document.body.classList.remove('night-mode');  // Elimina la clase de modo nocturno
+
+    // Cambia el icono del botón a luna y el color de fondo
+    document.querySelector('.floating-button-night i').classList.remove('fa-sun');
+    document.querySelector('.floating-button-night i').classList.add('fa-moon');
+    document.querySelector('.floating-button-night').style.backgroundColor = '#424242';  // Vuelve al color oscuro
+  } else {
+    map.removeLayer(dayLayer);  // Elimina la capa diurna
+    map.addLayer(nightLayer);  // Cambia a la capa nocturna
+    document.body.classList.add('night-mode');  // Añade la clase de modo nocturno
+
+    // Cambia el icono del botón a sol y el color de fondo
+    document.querySelector('.floating-button-night i').classList.remove('fa-moon');
+    document.querySelector('.floating-button-night i').classList.add('fa-sun');
+    document.querySelector('.floating-button-night').style.backgroundColor = 'white';  // Color amarillo para el sol
+  }
+  isNightMode = !isNightMode;  // Alterna el estado del modo
+}
+
+// FIN DE FUNCIONES DE BOTONES FLOTANTES //
+
+// RECONOCIMIENTO DE VOZ // 
+     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'es-ES';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      console.log("Escuchando...");
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Error de reconocimiento de voz: ", event.error);
+    };
+
+    recognition.onresult = (event) => {
+      const command = event.results[0][0].transcript.toLowerCase();
+      console.log("Comando de voz: ", command);
+
+      if (command.includes("modo nocturno") || command.includes("noche")) {
+        if (!isNightMode) {
+          toggleNightMode();
+        }
+      } else if (transcript.includes('reportar incidencia')) {
+        reportIncident();
+      }
+    };
+
+    // Iniciar el reconocimiento de voz al cargar la página
+    recognition.start();
+    // FIN DE RECONOCIMIENTO DE VOZ
+
+
+
+
+
+
+
+
+
+
+ // Coordenadas para los puntos de excrementos de perros (puedes agregar más puntos con las coordenadas adecuadas)
+ const dogPoopPoints = [
+      [28.0795, -16.6810], // Coordenada ejemplo
+      [28.0805, -16.6800], 
+      [28.0780, -16.6825],
+      [28.0780, -16.6850],
+      [28.0780, -16.6835],
+      [28.0780, -16.6840], 
+    ];
+
+    // Crear un icono para los excrementos de perros
+    const dogPoopIcon = L.divIcon({
+      className: 'dog-poop-icon',
+      html: '<i class="fas fa-poop"></i>', // Ícono de perro
+      iconSize: [32, 32]
+    });
+
+    // Agregar los puntos de excrementos de perros al mapa
+    dogPoopPoints.forEach(function(point) {
+      L.marker(point, { icon: dogPoopIcon }).addTo(map)
+        .bindPopup('¡Cuidado! Excrementos de perro en esta área.');
+    });
+
+
+
+
+
+
+
+
+
+
+
+    
+// Definir el tipo de incidencia de plagas con su icono y coordenadas (ejemplo)
+const incidents = [
+    { type: "Plaga de roedores", icon: "fa-paw", lat: 28.0805, lng: -16.6812 },
+    { type: "Plaga de insectos", icon: "fa-bug", lat: 28.0798, lng: -16.6805 }
+  ];
+
+  // Crear y agregar los marcadores de incidencias de plagas al mapa
+  incidents.forEach(function(incident) {
+    let icon = L.divIcon({
+      className: 'incident-icon',
+      html: `<i class="fas ${incident.icon}"></i>`,  // Usando Font Awesome para el ícono
+      iconSize: [30, 30]  // Tamaño del ícono
+    });
+
+    // Agregar el marcador en el mapa
+    L.marker([incident.lat, incident.lng], { icon: icon })
+      .addTo(map)
+      .bindPopup(`Incidencia: ${incident.type}`);
+  });
+
+
+
+
+
+// Definir las incidencias de farolas apagadas con su icono y coordenadas (ejemplo)
+const farolasIncidents = [
+    { type: "Farola apagada", icon: "fa-lightbulb", lat: 28.0800, lng: -16.6820 },
+    { type: "Farola rota", icon: "fa-lightbulb", lat: 28.0790, lng: -16.6835 }
+  ];
+
+  // Crear y agregar los marcadores de incidencias de farolas al mapa
+  farolasIncidents.forEach(function(incident) {
+    let icon = L.divIcon({
+      className: 'incident-farola-icon',
+      html: `<i class="fas ${incident.icon}"></i>`,  // Usando Font Awesome para el ícono
+      iconSize: [40, 40]  // Tamaño del ícono
+    });
+
+    // Agregar el marcador en el mapa
+    L.marker([incident.lat, incident.lng], { icon: icon })
+      .addTo(map)
+      .bindPopup(`Incidencia: ${incident.type}`);
+  });
+
+
+
+
+
+
+
+
+    // REPORTAR INCIDENCIA //
+    function reportIncident() {
+      window.open("https://forms.gle/xHA1kTnEdZ4c57xw8", "_blank");
+    } 
+  </script>
+</body>
+</html>
