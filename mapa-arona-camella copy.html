@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mapa de Contenedores - La Camella, Arona</title>
+  <title>AroNet - La Camella</title>
   <link rel="icon" href="assets/img/arona.png" type="image/png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -60,7 +60,7 @@ img {
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   text-align: center;
 }
@@ -74,11 +74,17 @@ img {
     /* Estilos de Botones Flotantes */
 .floating-buttons {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: 30px; /* Posiciona los botones a 30px del fondo de la pantalla */
+  left: 50%; /* Centra los botones horizontalmente */
+  transform: translateX(-50%); /* Ajusta para que el centro del contenedor esté en el centro de la pantalla */
   display: flex;
-  gap: 15px;
+  gap: 15px; /* Espacio entre los botones */
   z-index: 1000;
+  background: rgba(255, 255, 255, 0.2); /* Fondo semi-transparente */
+  border-radius: 30px; /* Bordes redondeados para el fondo */
+  padding: 10px 20px; /* Espaciado interno para los botones */
+  backdrop-filter: blur(10px); /* Desenfoque en el fondo detrás de los botones */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombras sutiles para profundidad */
 }
 
 .floating-button {
@@ -98,29 +104,21 @@ img {
 
 .floating-button:hover {
   transform: scale(1.1);
-  background-color: #B0BEC5;
+  background-color: black;
 }
 
-.floating-button-contact {
-  background-color: #1E88E5;
-}
-
-.floating-button-faq {
-  background-color: #FBC02D;
-}
-
-.floating-button-info {
-  background-color: #E53935;
+.floating-button-filter {
+  background-color: #ffbb00;
 }
 
 .floating-button-stats{
-  background-color: #8E24AA;
+  background-color: #00A1F1;
 }
 
 /* Estilo para el botón de modo nocturno */
 .floating-button-night {
   background-color: #333333; /* Fondo oscuro por defecto */
-  color: white; /* Texto blanco */
+  color: yellow; /* Texto blanco */
   border: none;
   border-radius: 50%; /* Hacer el botón redondo */
   width: 65px; /* Ancho del botón */
@@ -148,6 +146,11 @@ img {
 /* Icono del sol */
 .floating-button-night i.fa-sun {
   color: #FFEB3B; /* Icono amarillo para el sol */
+}
+
+.floating-button-back {
+  background-color: #FF5757; /* Azul */
+  color: white; /* Color del ícono */
 }
 
 .stats-box {
@@ -179,81 +182,6 @@ img {
   font-size: 12px;
   color: #555;
   margin-bottom: 10px;
-}
-
-.tips-box {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  z-index: 1001;
-  display: none;
-  max-width: 400px;
-  width: 100%;
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.tips-box h3 {
-  font-size: 22px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.tips-box p {
-  font-size: 12px;
-  color: #555;
-  margin-bottom: 10px;
-}
-
-.tips-box button {
-  display: block;
-  margin: 20px auto 0 auto;  /* Centra el botón en el contenedor */
-  padding: 8px 12px;
-  background-color: red;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.contact-info {
-  font-size: 13px;
-  color: #555;
-  margin-bottom: 10px;
-}
-
-.contact-info strong {
-  font-weight: bold;
-}
-
-.contact-logo {
-  max-width: 150px;
-  height: auto;
-  margin-bottom: 20px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.faq-item {
-  font-size: 12px;
-  color: black;
-  cursor: pointer;
-  padding: 10px 0;
-  border-bottom: 1px solid #ddd;
-  text-align: center;
-}
-
-.faq-item:hover {
-  color: blue;
 }
 
 .legend {
@@ -298,48 +226,39 @@ img {
   text-align: center;
 }
 
-/* Estilos adicionales para los iconos personalizados */
-.dog-poop-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      color: brown;
-    }
-
-.incident-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-  color: black;
-  background: grey;
+.location-info {
+  position: absolute;
+  top: 0;
+  width: 200px;
+  left: 50%; transform: translateX(-50%);
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 15px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
 }
 
-.incident-farola-icon{
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-  color: #ffc200;
+.location-info h1 {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 0;
+  color: #2c3e50;
 }
 
-
+.location-info p {
+  font-size: 18px;
+  color: #34495e;
+  margin: 5px 0;
+}
 </style>
 </head>
 <!-- END CSS STYLES -->
 <!-- END HEADER -->
 
 <body>
+
   <div id="map"></div>
 
   <!-- LEYENDA -->
@@ -352,20 +271,17 @@ img {
 
   <!-- BOTONES FLOTANTES -->
   <div class="floating-buttons">
+    <button class="floating-button floating-button-filter" onclick="toggleFilter()">
+      <i class="fas fa-sliders-h"></i>
+    </button>
     <button class="floating-button floating-button-stats" onclick="toggleStats()">
       <i class="fas fa-chart-bar"></i>
   </button>
     <button class="floating-button floating-button-night" onclick="toggleNightMode()">
       <i class="fas fa-moon"></i>
     </button>
-    <button class="floating-button floating-button-contact" onclick="toggleContact()">
-      <i class="fas fa-envelope"></i>
-    </button>
-    <button class="floating-button floating-button-faq" onclick="toggleFAQ()">
-      <i class="fas fa-question-circle"></i>
-    </button>
-    <button class="floating-button floating-button-info" onclick="toggleInfo()">
-      <i class="fas fa-info-circle"></i>
+    <button class="floating-button floating-button-back" onclick="redirectToMain()">
+      <i class="fas fa-home"></i>
     </button>
   </div>
 
@@ -385,34 +301,12 @@ img {
   <button class="close-btn" onclick="closeStats()">Cerrar</button>
 </div>
 
-  <!-- RECUADRO CONTACTO -->
-  <div class="tips-box" id="contact-tips">
-    <img src="assets/img/logo_ayuntamiento_arona.png" alt="Logo Ayuntamiento" class="contact-logo">
-    <p class="contact-info"><strong>Entidad Responsable:</strong> Ayuntamiento de Arona</p>
-    <p class="contact-info"><strong>Concejala del Área de Medio Ambiente:</strong> Dña.María Clara Pérez Pérez</p>
-    <p class="contact-info"><strong>Teléfono:</strong> 922 76 16 00</p>
-    <p class="contact-info"><strong>Correo Electrónico:</strong> portalweb@arona.org</p>
-    <p class="contact-info"><strong>Dirección:</strong> Pl. Cristo de la Salud, 1, 38640 Arona, Santa Cruz de Tenerife</p>
-    <button onclick="closeContactTips()">Cerrar</button>
-  </div>
+<div class="location-info">
+  <h1>La Camella</h1>
+  <p>Arona, S/C de Tenerife</p>
+</div>
 
-  <!-- RECUADRO FAQ -->
-  <div class="tips-box" id="faq-tips">
-    <h3>PREGUNTAS FRECUENTES</h3>
-    <div class="faq-item">¿Cómo se recogen los residuos orgánicos?</div>
-    <div class="faq-item">¿Qué tipo de plásticos se pueden reciclar?</div>
-    <div class="faq-item">¿Dónde puedo reportar un problema?</div>
-    <div class="faq-item">¿Cómo saber el horario de los contenedores?</div>
-    <div class="faq-item">¿Qué hago si un contenedor está lleno?</div>
-    <button onclick="closeFAQ()">Cerrar</button>
-  </div>
 
-  <!-- RECUADRO INFORMACIÓN ADICIONAL -->
-  <div class="tips-box" id="info-tips">
-    <h3>Información Adicional</h3>
-    <p><strong>Recuerda:</strong> juntos podemos mantener nuestro municipio limpio y agradable. Cada pequeña acción cuenta para cuidar nuestro entorno.</p>
-    <button onclick="closeInfoTips()">Cerrar</button>
-  </div>
 
   <!-- FUNCIONES JAVASCRIPT -->
   <script>
@@ -425,21 +319,28 @@ img {
       maxZoom: 19
     }).addTo(map);
  
+    const containerIcon = L.icon({
+  iconUrl: './assets/img/container-icon.png', // Ruta al icono personalizado
+  iconSize: [40, 40], // Tamaño del icono (ancho, alto)
+  iconAnchor: [20, 40], // Punto del icono que estará anclado al mapa (centro inferior)
+  popupAnchor: [0, -40], // Ajusta la posición del popup respecto al icono
+});
+
     // LOCALIZACIONES DE CONTENEDORES CON NIVELES DE LLENADO //
 const containers = [
-  { lat: 28.078255, lng: -16.681473, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'Carretera General, 30 TF-28', hours: 'De 20:00 a 22:00', image: './assets/img/camella1.png', fillLevel: 0 },
-  { lat: 28.078017, lng: -16.680183, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'Camino "Los Chijafes", 10', hours: 'De 20:00 a 22:00', image: './assets/img/camella2.png', fillLevel: 100 },
-  { lat: 28.077939, lng: -16.682653, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'C/Bejeque, 15', hours: 'De 20:00 a 22:00', image: './assets/img/camella3.png', fillLevel: 14 },
-  { lat: 28.078924, lng: -16.682490, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'Carretera General, TF-51', hours: 'De 20:00 a 22:00', image: './assets/img/camella4.png', fillLevel: 50 },
-  { lat: 28.078166, lng: -16.682503, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 21', hours: 'De 20:00 a 22:00', image: './assets/img/camella5.png', fillLevel: 0 },
-  { lat: 28.077966, lng: -16.681649, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 3', hours: 'De 20:00 a 22:00', image: './assets/img/camella6.png', fillLevel: 0 },
-  { lat: 28.077953, lng: -16.681518, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 1', hours: 'De 20:00 a 22:00', image: './assets/img/camella7.png', fillLevel: 0 },
+  { lat: 28.078255, lng: -16.681473, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'Carretera General, 30 TF-28', hours: 'De 20:00 a 22:00', image: './assets/img/camella1.png' },
+  { lat: 28.078017, lng: -16.680183, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'Camino "Los Chijafes", 10', hours: 'De 20:00 a 22:00', image: './assets/img/camella2.png' },
+  { lat: 28.077939, lng: -16.682653, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Vidrio, Plástico, Orgánico', street: 'C/Bejeque, 15', hours: 'De 20:00 a 22:00', image: './assets/img/camella3.png' },
+  { lat: 28.078924, lng: -16.682490, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'Carretera General, TF-51', hours: 'De 20:00 a 22:00', image: './assets/img/camella4.png' },
+  { lat: 28.078166, lng: -16.682503, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 21', hours: 'De 20:00 a 22:00', image: './assets/img/camella5.png' },
+  { lat: 28.077966, lng: -16.681649, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 3', hours: 'De 20:00 a 22:00', image: './assets/img/camella6.png' },
+  { lat: 28.077953, lng: -16.681518, name: 'PUNTO DE RECOGIDA DE RESIDUOS', description: 'Sin Información', street: 'C/Orobal, 1', hours: 'De 20:00 a 22:00', image: './assets/img/camella7.png' },
 ];
 // FIN DATOS DE LOCALIZACIONES //
 
 // AGREGA MARCADORES AL MAPA Y CALCULA EL CONTENEDOR MÁS CERCANO //
 containers.forEach((container, index) => {
-  const marker = L.marker([container.lat, container.lng]).addTo(map);
+  const marker = L.marker([container.lat, container.lng], { icon: containerIcon }).addTo(map);
 
   let nearestContainer = null;
   let minDistance = Infinity;
@@ -458,61 +359,22 @@ containers.forEach((container, index) => {
     ? `<div class="info-text"><strong>Depósito Cercano:</strong> ${nearestContainer.street} (${minDistance.toFixed(2)}m)</div>`
     : '';
 
-  // ABRE EL POPUP CON LOS DETALLES DE CADA MARCADOR //
   marker.bindPopup(`
     <div class="zona-recogida">${container.name}</div>
     <div class="info-text"><strong>Descripción:</strong> ${container.description}</div>
     <div class="info-text"><strong>Ubicación:</strong> ${container.street}</div>
     <div class="info-text"><strong>Horario de Recogida:</strong> ${container.hours}</div>
     ${nearestInfo}
-    <div class="progress-bar" style="background-color: #f3f3f3; border-radius: 5px; height: 10px;">
-      <div style="width: ${container.fillLevel}%; background-color: ${getFillLevelColor(container.fillLevel)}; height: 100%; border-radius: 5px;"></div>
-    </div>
-    <div class="info-text">${container.fillLevel}%</div>
     <img src="${container.image}" alt="Contenedor">
-    <button class="report-incident-btn" onclick="reportIncident()">REPORTAR INCIDENCIA</button>
+     <div style="display: flex; justify-content: space-between; gap: 10px; ">
+    <button class="report-incident-btn" onclick="reportIncident()">INCIDENCIA</button>
+    <button class="report-incident-btn" onclick="historial()">HISTORIAL</button>
+    <button class="report-incident-btn" onclick="historial()">HISTORIAL</button>
+     </div>
   `);
 });
 
-// FUNCIONES PARA CAMBIO DE COLOR DE LA BARRA DE PROGRESO //
-function getFillLevelColor(fillLevel) {
-  if (fillLevel >= 80) {
-    return '#FF5733'; // Rojo (alto nivel de llenado)
-  } else if (fillLevel >= 50) {
-    return '#F1C40F'; // Amarillo (nivel moderado)
-  } else {
-    return '#2ECC71'; // Verde (bajo nivel de llenado)
-  }
-}
-
     // INICIO DE FUNCIONES DE BOTONES FLOTANTES //
-    function toggleContact() {
-      const contactTips = document.getElementById("contact-tips");
-      contactTips.style.display = (contactTips.style.display === "block") ? "none" : "block";
-    }
-
-    function closeContactTips() {
-      document.getElementById("contact-tips").style.display = "none";
-    }
-
-    function toggleFAQ() {
-      const faqTips = document.getElementById("faq-tips");
-      faqTips.style.display = (faqTips.style.display === "block") ? "none" : "block";
-    }
-
-    function closeFAQ() {
-      document.getElementById("faq-tips").style.display = "none";
-    }
-
-    function toggleInfo() {
-      const infoTips = document.getElementById("info-tips");
-      infoTips.style.display = (infoTips.style.display === "block") ? "none" : "block";
-    }
-
-    function closeInfoTips() {
-      document.getElementById("info-tips").style.display = "none";
-    }
-
     function toggleStats() {
       const statsBox = document.getElementById("stats-box");
       statsBox.style.display = (statsBox.style.display === "block") ? "none" : "block";
@@ -559,6 +421,10 @@ function toggleNightMode() {
   isNightMode = !isNightMode;  // Alterna el estado del modo
 }
 
+function redirectToMain() {
+    window.location.href = "aronet-main.html"; // Asegúrate de que esta ruta sea correcta
+  }
+
 // FIN DE FUNCIONES DE BOTONES FLOTANTES //
 
 // RECONOCIMIENTO DE VOZ // 
@@ -592,104 +458,90 @@ function toggleNightMode() {
     recognition.start();
     // FIN DE RECONOCIMIENTO DE VOZ
 
-
-
-
-
-
-
-
-
-
- // Coordenadas para los puntos de excrementos de perros (puedes agregar más puntos con las coordenadas adecuadas)
- const dogPoopPoints = [
-      [28.0795, -16.6810], // Coordenada ejemplo
-      [28.0805, -16.6800], 
-      [28.0780, -16.6825],
-      [28.0780, -16.6850],
-      [28.0780, -16.6835],
-      [28.0780, -16.6840], 
-    ];
-
-    // Crear un icono para los excrementos de perros
-    const dogPoopIcon = L.divIcon({
-      className: 'dog-poop-icon',
-      html: '<i class="fas fa-poop"></i>', // Ícono de perro
-      iconSize: [32, 32]
-    });
-
-    // Agregar los puntos de excrementos de perros al mapa
-    dogPoopPoints.forEach(function(point) {
-      L.marker(point, { icon: dogPoopIcon }).addTo(map)
-        .bindPopup('¡Cuidado! Excrementos de perro en esta área.');
-    });
-
-
-
-
-
-
-
-
-
-
-
-    
-// Definir el tipo de incidencia de plagas con su icono y coordenadas (ejemplo)
-const incidents = [
-    { type: "Plaga de roedores", icon: "fa-paw", lat: 28.0805, lng: -16.6812 },
-    { type: "Plaga de insectos", icon: "fa-bug", lat: 28.0798, lng: -16.6805 }
-  ];
-
-  // Crear y agregar los marcadores de incidencias de plagas al mapa
-  incidents.forEach(function(incident) {
-    let icon = L.divIcon({
-      className: 'incident-icon',
-      html: `<i class="fas ${incident.icon}"></i>`,  // Usando Font Awesome para el ícono
-      iconSize: [30, 30]  // Tamaño del ícono
-    });
-
-    // Agregar el marcador en el mapa
-    L.marker([incident.lat, incident.lng], { icon: icon })
-      .addTo(map)
-      .bindPopup(`Incidencia: ${incident.type}`);
-  });
-
-
-
-
-
-// Definir las incidencias de farolas apagadas con su icono y coordenadas (ejemplo)
-const farolasIncidents = [
-    { type: "Farola apagada", icon: "fa-lightbulb", lat: 28.0800, lng: -16.6820 },
-    { type: "Farola rota", icon: "fa-lightbulb", lat: 28.0790, lng: -16.6835 }
-  ];
-
-  // Crear y agregar los marcadores de incidencias de farolas al mapa
-  farolasIncidents.forEach(function(incident) {
-    let icon = L.divIcon({
-      className: 'incident-farola-icon',
-      html: `<i class="fas ${incident.icon}"></i>`,  // Usando Font Awesome para el ícono
-      iconSize: [40, 40]  // Tamaño del ícono
-    });
-
-    // Agregar el marcador en el mapa
-    L.marker([incident.lat, incident.lng], { icon: icon })
-      .addTo(map)
-      .bindPopup(`Incidencia: ${incident.type}`);
-  });
-
-
-
-
-
-
-
-
     // REPORTAR INCIDENCIA //
     function reportIncident() {
       window.open("https://forms.gle/xHA1kTnEdZ4c57xw8", "_blank");
+    }
+
+    // REPORTAR INCIDENCIA //
+    function historial() {
+      window.open("", "_blank");
     } 
+
+// Define tu escala de colores personalizada con opacidad
+function getColor(incidencias, maxIncidencias) {
+    // Calcula el porcentaje de incidencias
+    const percentage = incidencias / maxIncidencias;
+
+    // Define los colores según el porcentaje con opacidad (por ejemplo, 0.6)
+    if (percentage <= 0.2) {
+        return 'rgba(92, 178, 93, 0.5)'; // Verde con 20% de opacidad // 0% - 20% incidencias.
+    } else if (percentage <= 0.4) {
+        return 'rgba(15, 144, 21, 0.5)'; // Verde claro con 20% de opacidad // 20% - 40% incidencias
+    } else if (percentage <= 0.6) {
+        return 'rgba(255, 198, 89, 0.5)'; // Amarillo con 20% de opacidad // 40% - 60% incidencias
+    } else if (percentage <= 0.8) {
+        return 'rgba(239, 89, 38, 0.5)'; // Naranja con 20% de opacidad // 60% - 80% incidencias
+    } else {
+        return 'rgba(255, 87, 87, 0.5)'; // Rojo con 20% de opacidad // 80% - 100% incidencias
+    }
+}
+
+// Datos de los puntos de recogida
+const puntos = [
+    {
+        lat: 28.078166,
+        lng: -16.682503,
+        incidencias: 0, // Número de incidencias actuales
+    maxIncidencias: 4256, // Número máximo esperado
+    incidenciasResueltas: 0, // Ejemplo de incidencias resueltas
+    incidenciasNoResueltas: 0 // Ejemplo de incidencias no resueltas
+    },
+    {
+      lat: 28.078255,
+        lng: -16.681473,
+        incidencias: 0, // Número de incidencias actuales
+    maxIncidencias: 4256, // Número máximo esperado
+    incidenciasResueltas: 0, // Ejemplo de incidencias resueltas
+    incidenciasNoResueltas: 0 // Ejemplo de incidencias no resueltas
+    },
+    // Añade más puntos aquí
+];
+
+// Añadir puntos al mapa
+puntos.forEach((punto) => {
+    const color = getColor(punto.incidencias, punto.maxIncidencias); // Calcula el color
+    const radio = 5 + (punto.incidencias / punto.maxIncidencias) * 1;  // Cambio de *2 a *1
+
+    // Crear un círculo para el marcador
+    const marker = L.circle([punto.lat, punto.lng], {
+        color: color,
+        fillColor: color,
+        fillOpacity: 1,
+        radius: radio,
+    })
+        .bindPopup(`
+            <b>Incidencias:</b> ${punto.incidencias}<br>
+            <b>Incidencias Resueltas:</b> ${punto.incidenciasResueltas}<br>
+            <b>Incidencias No Resueltas:</b> ${punto.incidenciasNoResueltas}
+        `)
+        .addTo(map);
+
+    // Añadir el número de incidencias sobre el marcador como texto
+    const incidenceText = L.divIcon({
+        className: 'incidencia-icon',
+        html: `<div style="color: black; font-size: 12px; text-align: center; font-weight: bold;">
+                ${punto.incidencias}
+              </div>`,
+        iconSize: [5, 5],
+        iconAnchor: [5, 5],
+    });
+
+    // Crear un marcador para el texto de las incidencias
+    L.marker([punto.lat, punto.lng], { icon: incidenceText }).addTo(map);
+});
+
+
   </script>
 </body>
 </html>

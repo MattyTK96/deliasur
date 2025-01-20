@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es-Es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AroNet - Página Oficial</title>
+  <link rel="icon" href="assets/img/arona.png" type="image/png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<!-- CSS STYLES -->
+<style>
+  body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+/* Estilo para los logos */
+.logos-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: 10%; /* Ajusta la posición según tus necesidades */
+      width: 100%;
+      z-index: 100;
+    }
+
+    .logos-container img {
+      margin: 0 15px; /* Espacio entre los logos */
+      max-width: 230px;/*justa el tamaño de los logos */
+      height: auto;
+      background: none;
+    }
+
+    /* Estilos de Botones Flotantes */
+.floating-buttons {
+  position: fixed;
+  bottom: 30px; /* Posiciona los botones a 30px del fondo de la pantalla */
+  left: 50%; /* Centra los botones horizontalmente */
+  transform: translateX(-50%);/* Ajusta para que el centro del contenedor esté en el centro de la pantalla */
+  display: flex;
+  gap: 15px; /* Espacio entre los botones */
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.2); /* Fondo semi-transparente */
+  border-radius: 30px; /* Bordes redondeados para el fondo */
+  padding: 10px 20px; /* Espaciado interno para los botones */
+  backdrop-filter: blur(10px); /* Desenfoque en el fondo detrás de los botones */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombras sutiles para profundidad */
+}
+
+.floating-button {
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  font-size: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.floating-button:hover {
+  transform: scale(1.1);
+  background-color: black;
+}
+
+.floating-button-contact {
+  background-color: #1E88E5;
+}
+
+.floating-button-info {
+  background-color: red;
+}
+
+.floating-button-info:hover {
+  background-color: black;
+}
+
+
+.floating-button-lang{
+  background-color:  white;
+  color: black;
+}
+
+.floating-button-lang:hover{
+  color: white;
+  background-color: black;
+}
+
+.floating-button-faq {
+  background-color: #FBC02D;
+}
+
+.floating-button-faq:hover {
+  background-color: black;
+}
+
+.faq-item {
+  font-size: 12px;
+  color: black;
+  cursor: pointer;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.faq-item:hover {
+  color: blue;
+}
+
+.tips-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  display: none;
+  max-width: 400px;
+  width: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.tips-box h3 {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.tips-box p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.tips-box button {
+  display: block;
+  margin: 20px auto 0 auto;  /* Centra el botón en el contenedor */
+  padding: 8px 12px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.contact-info {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.contact-info strong {
+  font-weight: bold;
+}
+
+.contact-logo {
+  max-width: 150px;
+  height: auto;
+  margin-bottom: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.close-btn {
+  display: block;
+  margin: 20px auto 0 auto;  /* Centra el botón en el contenedor */
+  padding: 8px 12px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Estilo para el cuadro de información */
+.info-box {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      max-width: 400px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .info-box h2 {
+      text-align: center;
+      font-size: 22px;
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .info-box p {
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #333;
+    }
+
+    .info-box li {
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #333;
+    }
+
+    .close-info-btn {
+      display: block;
+      margin: 20px auto 0 auto;
+      padding: 8px 12px;
+      background-color: red;
+      color: white;
+      border: none;
+
+      cursor: pointer;
+      text-align: center;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+ /* Estilo para el contenedor principal */
+ .main-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(to right, #1e88e5, #0d47a1);
+      color: white;
+      text-align: center;
+    }
+
+    /* Título principal */
+    .main-container h1 {
+      font-size: 100px;
+      margin-bottom: 20px;
+    }
+
+    /* Subtítulo */
+    .main-container p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    /* Botón de carga */
+    .loading-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 24px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .loading-button:hover {
+      background-color: #45a049;
+    }
+
+    /* Animación de carga */
+    .loading-spinner {
+      margin-top: 20px;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+</style>
+</head>
+<!-- END CSS STYLES -->
+<!-- END HEADER -->
+
+<body>
+
+  <div class="logos-container">
+    <img src="assets/img/" alt="">
+  </div>
+
+
+
+  <div class="main-container">
+    <h1>AroNet</h1>
+    <p>SISTEMA DE LOCALIZACIÓN DISEÑADO PARA FACILITAR LA IDENTIFICACIÓN Y GESTIÓN DE PUNTOS DE RECOGIDA</p>
+    
+    <!-- Botón de carga -->
+    <button class="loading-button" id="loadMapBtn" onclick="loadMap()">CARGAR MAPAS</button>
+    
+    
+    <!-- Animación de carga -->
+    <div class="loading-spinner" id="loadingSpinner" style="display: none;"></div>
+  </div>
+
+  <!-- BOTONES FLOTANTES -->
+  <div class="floating-buttons">
+    <button class="floating-button floating-button-lang" onclick="toggleLanguage()">
+      <i class="fas fa-language"></i>
+  </button>
+    <button class="floating-button floating-button-contact" onclick="toggleContact()">
+      <i class="fas fa-envelope"></i>
+    </button>
+    <button class="floating-button floating-button-faq" onclick="toggleFAQ()">
+      <i class="fas fa-question-circle"></i>
+    </button>    
+    <button class="floating-button floating-button-info" onclick="toggleInfo()">
+      <i class="fas fa-info-circle"></i>
+    </button>
+  </div>
+
+  <!-- RECUADRO CONTACTO -->
+  <div class="tips-box" id="contact-tips">
+    <img src="assets/img/logo_ayuntamiento_arona.png" alt="Logo Ayuntamiento" class="contact-logo">
+    <p class="contact-info"><strong>Entidad Responsable:</strong> Ayuntamiento de Arona</p>
+    <p class="contact-info"><strong>Concejala del Área de Medio Ambiente:</strong> Dña.María Clara Pérez Pérez</p>
+    <p class="contact-info"><strong>Teléfono:</strong> 922 76 16 00</p>
+    <p class="contact-info"><strong>Correo Electrónico:</strong> portalweb@arona.org</p>
+    <p class="contact-info"><strong>Dirección:</strong> Pl. Cristo de la Salud, 1, 38640 Arona, Santa Cruz de Tenerife</p>
+    <button onclick="closeContactTips()">Cerrar</button>
+  </div>
+
+  <!-- RECUADRO FAQ -->
+  <div class="tips-box" id="faq-tips">
+    <h3>PREGUNTAS FRECUENTES</h3>
+    <div class="faq-item">¿Cómo se recogen los residuos orgánicos?</div>
+    <div class="faq-item">¿Qué tipo de plásticos se pueden reciclar?</div>
+    <div class="faq-item">¿Dónde puedo reportar un problema?</div>
+    <div class="faq-item">¿Cómo saber el horario de los contenedores?</div>
+    <div class="faq-item">¿Qué hago si un contenedor está lleno?</div>
+    <button onclick="closeFAQ()">Cerrar</button>
+  </div>
+
+  <div id="infoBox" class="info-box">
+    <h2>DERECHOS DE AUTOR</h2>
+    <p><strong>Desarrollado por:</strong> Asociación "DELIA Sur"</p>
+    <p><strong>Profesionales Implicados:</strong>
+    <li>Carmen D. Reverón Acosta</li>
+    <li>Helga Isabel Leo</li>
+    <li>Adrián Piñeiro Hernández</li>
+    <li>Ángel Mora Rodríguez</li>
+    <li>Mateusz T. Krzysiek</li>
+  </p>
+    <p><strong>Fecha de Creación:</strong> Enero, 2025</p>
+    <p><strong>Contacto:</strong> deliasur.info@gmail.com</p>
+    <button class="close-info-btn" onclick="closeInfo()">Cerrar</button>
+  </div>
+
+
+  <!-- FUNCIONES JAVASCRIPT -->
+  <script>
+
+  // Función para cargar el mapa
+  function loadMap() {
+        // Muestra el spinner de carga
+        document.getElementById("loadingSpinner").style.display = "block";
+        
+        // Oculta el botón de carga
+        document.getElementById("loadMapBtn").style.display = "none";
+
+        // Simula la carga del mapa (aquí puedes cargar el mapa real)
+        setTimeout(() => {
+            // Redirige a la página del mapa o inicia el mapa en la misma página
+            window.location.href = "mapa-arona-camella copy.html"; // Asegúrate de que esta sea la URL correcta de tu página de mapa
+        }, 3000); // El mapa se "carga" después de 3 segundos (puedes ajustar este tiempo)
+    }
+
+    // INICIO DE FUNCIONES DE BOTONES FLOTANTES //
+    
+    function toggleContact() {
+      const contactTips = document.getElementById("contact-tips");
+      contactTips.style.display = (contactTips.style.display === "block") ? "none" : "block";
+    }
+
+    function closeContactTips() {
+      document.getElementById("contact-tips").style.display = "none";
+    }
+
+    function toggleFAQ() {
+      const faqTips = document.getElementById("faq-tips");
+      faqTips.style.display = (faqTips.style.display === "block") ? "none" : "block";
+    }
+
+    function closeFAQ() {
+      document.getElementById("faq-tips").style.display = "none";
+    }
+
+    // Mostrar o esconder el cuadro de información
+    function toggleInfo() {
+      const infoBox = document.getElementById('infoBox');
+      infoBox.style.display = (infoBox.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // Cerrar el cuadro de información
+    function closeInfo() {
+      document.getElementById('infoBox').style.display = 'none';
+    }
+
+  
+
+  
+  </script>
+</body>
+</html>
