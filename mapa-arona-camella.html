@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="es-Es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AroNet - La Camella</title>
+  <link rel="icon" href="assets/img/arona.png" type="image/png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  
+<!-- CSS STYLES -->
+<style>
+  body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+#map {
+  width: 100%;
+  height: 100vh;
+}
+
+.info {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  max-width: 280px;
+  font-size: 14px;
+}
+
+.zona-recogida {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #4CAF50;
+}
+
+.info-text {
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.report-incident-btn {
+  display: block;
+  margin: 10px auto 0 auto;
+  padding: 8px 12px;
+  background-color:  black;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.report-incident-btn:hover {
+  background-color: #FF5757;
+  color: white;
+  transition: 0.5s ease;
+}
+
+    /* Estilos de Botones Flotantes */
+.floating-buttons {
+  position: fixed;
+  bottom: 30px; /* Posiciona los botones a 30px del fondo de la pantalla */
+  left: 50%; /* Centra los botones horizontalmente */
+  transform: translateX(-50%); /* Ajusta para que el centro del contenedor esté en el centro de la pantalla */
+  display: flex;
+  gap: 15px; /* Espacio entre los botones */
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.2); /* Fondo semi-transparente */
+  border-radius: 30px; /* Bordes redondeados para el fondo */
+  padding: 10px 20px; /* Espaciado interno para los botones */
+  backdrop-filter: blur(10px); /* Desenfoque en el fondo detrás de los botones */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombras sutiles para profundidad */
+}
+
+.floating-button {
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  font-size: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+.floating-button:hover {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  transform: translateY(-5px);
+}
+
+.floating-button-filter {
+  background-color: #ffbb00;
+}
+
+.floating-button-stats{
+  background-color: #00A1F1;
+}
+
+.floating-button-location{
+  background-color: #00A1F1;
+}
+
+
+/* Estilo para el botón de modo nocturno */
+.floating-button-night {
+  background-color: #333333; /* Fondo oscuro por defecto */
+  color: yellow; /* Texto blanco */
+  border: none;
+  border-radius: 50%; /* Hacer el botón redondo */
+  width: 65px; /* Ancho del botón */
+  height: 65px; /* Alto del botón */
+  font-size: 30px; /* Tamaño de la fuente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Sombra del botón */
+  cursor: pointer; /* Cambiar el cursor cuando pase por encima */
+  transition: background-color 0.3s, transform 0.3s; /* Transición suave para el hover */
+}
+
+/* Efecto hover para el botón de modo nocturno */
+.floating-button-night:hover {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+  transform: translateY(-5px);
+}
+
+/* Estilo cuando el modo nocturno está activo (fondo amarillo y sol) */
+.floating-button-night.sun-mode {
+  background-color: #FFEB3B;  /* Fondo amarillo para el sol */
+}
+
+/* Icono del sol */
+.floating-button-night i.fa-sun {
+  color: #FFEB3B; /* Icono amarillo para el sol */
+}
+
+.floating-button-back {
+  background-color: #FF5757; /* Azul */
+  color: white; /* Color del ícono */
+}
+
+.stats-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  display: none;
+  max-width: 400px;
+  width: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+}
+
+.stats-box h3 {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.stats-box p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.legend {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  z-index: 1000;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legend-color {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+  border-radius: 3px;
+}
+
+.legend-text {
+  flex-grow: 1;
+}
+
+.close-btn {
+  display: block;
+  margin: 20px auto 0 auto;  /* Centra el botón en el contenedor */
+  padding: 8px 12px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.location-info {
+  position: absolute;
+  top: 20px; /* Justo en la parte superior */
+  right: 20px; /* Justo en la parte derecha */
+  width: 200px;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 15px 30px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.location-info h1 {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.location-info p {
+  font-size: 18px;
+  color: #34495e;
+  margin: 5px 0;
+}
+
+.flags {
+  display: flex;
+  justify-content: center; /* Centra las banderas horizontalmente */
+  gap: 10px; /* Espacio entre las banderas */
+  margin-top: 10px; /* Separación desde el texto */
+}
+
+.flag {
+  width: 40px; /* Tamaño de cada bandera */
+  height: auto; /* Mantiene la proporción de la imagen */
+  border-radius: 0 ;
+}
+
+</style>
+</head>
+<!-- END CSS STYLES -->
+<!-- END HEADER -->
+
+<body>
+
+  <div id="map"></div>
+
+  <!-- LEYENDA -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-icon" style="background-image: url('assets/img/container-icon.png'); background-size: cover; width: 20px; height: 20px;"></div>
+      <div class="legend-text">Punto de Recogida de Residuos</div>
+    </div>
+  </div>
+
+  <!-- BOTONES FLOTANTES -->
+  <div class="floating-buttons">
+    <button class="floating-button floating-button-filter" onclick="toggleFilter()">
+      <i class="fas fa-sliders-h"></i>
+    </button>
+    <button class="floating-button floating-button-stats" onclick="toggleStats()">
+      <i class="fas fa-chart-bar"></i>
+  </button>
+    <button class="floating-button floating-button-night" onclick="toggleNightMode()">
+      <i class="fas fa-moon"></i>
+    </button>
+    <button class="floating-button floating-button-back" onclick="redirectToMain()">
+      <i class="fas fa-home"></i>
+    </button>
+  </div>
+
+  <!-- RECUADRO ESTADÍSTICAS -->
+  <canvas id="statsChart" width="400" height="200"></canvas>
+ <div class="stats-box" id="stats-box">
+  <h3>ESTADÍSTICAS POBLACIONALES</h3>
+  <p><strong>Población Total:</strong> 4'256 habitantes.</p>
+  <p><strong>Área Total:</strong> 8.63km²</p>
+  <p><strong>Densidad Poblacional:</strong> 493.4 habitantes por km².</p>
+  <p><strong>Puntos de Recogida:</strong> 7.</p>
+  <p><strong>Habitantes por Punto de Recogida:</strong> 608 habitantes.</p>
+  <p><strong>Cantidad de Residuos Generados Anualmente:</strong> No Disponible.</p>
+  <p><strong>Tasa de Reciclaje:</strong> No Disponible.</p>
+  <p><strong>Generación de Resiudos por Habitante:</strong> No Disponible.</p>
+  <p><strong>Índice de Calidad del Aire:</strong> No Disponible.</p>
+  <p><strong>Índice Sostenibilidad</strong> No Disponible.</p>
+  <button class="close-btn" onclick="closeStats()">Cerrar</button>
+</div>
+
+<div class="location-info">
+  <h1>La Camella</h1>
+  <p>Arona, S/C de Tenerife</p>
+  <div class="flags">
+    <img src="assets/img/flag_arona.svg" alt="Flag 1" class="flag">
+    <img src="assets/img/flag_canarias.svg" alt="Flag 2" class="flag">
+    <img src="assets/img/flag_españa.png" alt="Flag 3" class="flag">
+  </div>
+</div>
+  
+  <!-- FUNCIONES JAVASCRIPT -->
+  <script>
+
+    // FUNCIÓN PARA MOSTRAR EL MAPA DESDE UNA UBICACIÓN DETERMINADA //
+    const map = L.map('map').setView([28.0789, -16.6822], 17);
+  
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+ 
+    const containerIcon = L.icon({
+  iconUrl: './assets/img/container-icon.png', // Ruta al icono personalizado
+  iconSize: [40, 40], // Tamaño del icono (ancho, alto)
+  iconAnchor: [20, 40], // Punto del icono que estará anclado al mapa (centro inferior)
+  popupAnchor: [0, -40], // Ajusta la posición del popup respecto al icono
+});
+
+    // LOCALIZACIONES DE CONTENEDORES CON NIVELES DE LLENADO //
+const containers = [
+  { lat: 28.078255, lng: -16.681473, name: 'LCA - PR - 01 - D.A', description: 'Sin Información', street: 'Carretera General, 30 TF-28', hours: 'De 20:00 a 24:00', image: './assets/img/camella1.png' },
+  { lat: 28.078017, lng: -16.680183, name: 'LCA - PR - 02 - D.A', description: 'Sin Información', street: 'Camino "Los Chijafes", 10', hours: 'De 20:00 a 24:00', image: './assets/img/camella2.png' },
+  { lat: 28.077939, lng: -16.682653, name: 'LCA - PR - 03 - D.A', description: 'SIn Información', street: 'C/Bejeque, 15', hours: 'De 20:00 a 24:00', image: './assets/img/camella3.png' },
+  { lat: 28.078924, lng: -16.682490, name: 'LCA - PR - 04 - D.A', description: 'Sin Información', street: 'Carretera General, TF-51', hours: 'De 20:00 a 24:00', image: './assets/img/camella4.png' },
+  { lat: 28.078166, lng: -16.682503, name: 'LCA - PR - 05 - D.A', description: 'Sin Información', street: 'C/Orobal, 21', hours: 'De 20:00 a 24:00', image: './assets/img/camella5.png' },
+  { lat: 28.077966, lng: -16.681649, name: 'LCA - PR - 06 - D.A', description: 'Sin Información', street: 'C/Orobal, 3', hours: 'De 20:00 a 24:00', image: './assets/img/camella6.png' },
+  { lat: 28.077953, lng: -16.681518, name: 'LCA - PR - 07 - D.A', description: 'Sin Información', street: 'C/Orobal, 1', hours: 'De 20:00 a 24:00', image: './assets/img/camella7.png' },
+];
+// FIN DATOS DE LOCALIZACIONES //
+
+// AGREGA MARCADORES AL MAPA Y CALCULA EL CONTENEDOR MÁS CERCANO //
+containers.forEach((container, index) => {
+  const marker = L.marker([container.lat, container.lng], { icon: containerIcon }).addTo(map);
+
+  let nearestContainer = null;
+  let minDistance = Infinity;
+
+  containers.forEach((other, otherIndex) => {
+    if (index !== otherIndex) {
+      const distance = map.distance([container.lat, container.lng], [other.lat, other.lng]); // Distancia en metros
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestContainer = other;
+      }
+    }
+  });
+
+  const nearestInfo = nearestContainer
+    ? `<div class="info-text"><strong>Depósito Cercano:</strong> ${nearestContainer.street} (${minDistance.toFixed(2)}m)</div>`
+    : '';
+
+  marker.bindPopup(`
+    <div class="zona-recogida">${container.name}</div>
+    <div class="info-text"><strong>Descripción:</strong> ${container.description}</div>
+    <div class="info-text"><strong>Ubicación:</strong> ${container.street}</div>
+    <div class="info-text"><strong>Horario de Recogida:</strong> ${container.hours}</div>
+    ${nearestInfo}
+    <img src="${container.image}" alt="Contenedor">
+     <div style="display: flex; justify-content: space-between; gap: 10px; ">
+    <button class="report-incident-btn" onclick="reportIncident()">¡REPORTAR INCIDENCIA!</button>
+     </div>
+  `);
+});
+
+    // INICIO DE FUNCIONES DE BOTONES FLOTANTES //
+    function toggleStats() {
+      const statsBox = document.getElementById("stats-box");
+      statsBox.style.display = (statsBox.style.display === "block") ? "none" : "block";
+    }
+
+    function closeStats() {
+      document.getElementById("stats-box").style.display = "none";
+    }
+
+      // Capa de mapa de día y noche
+let dayLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+  maxZoom: 19
+}).addTo(map);
+
+let nightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.cartodb.com/attributions">CartoDB</a>',
+  maxZoom: 19
+});
+
+      // Variable para controlar el modo
+let isNightMode = false;
+
+function toggleNightMode() {
+  if (isNightMode) {
+    map.removeLayer(nightLayer);  // Elimina la capa nocturna
+    map.addLayer(dayLayer);  // Vuelve al mapa diurno
+    document.body.classList.remove('night-mode');  // Elimina la clase de modo nocturno
+
+    // Cambia el icono del botón a luna y el color de fondo
+    document.querySelector('.floating-button-night i').classList.remove('fa-sun');
+    document.querySelector('.floating-button-night i').classList.add('fa-moon');
+    document.querySelector('.floating-button-night').style.backgroundColor = '#424242';  // Vuelve al color oscuro
+  } else {
+    map.removeLayer(dayLayer);  // Elimina la capa diurna
+    map.addLayer(nightLayer);  // Cambia a la capa nocturna
+    document.body.classList.add('night-mode');  // Añade la clase de modo nocturno
+
+    // Cambia el icono del botón a sol y el color de fondo
+    document.querySelector('.floating-button-night i').classList.remove('fa-moon');
+    document.querySelector('.floating-button-night i').classList.add('fa-sun');
+    document.querySelector('.floating-button-night').style.backgroundColor = 'white';  // Color amarillo para el sol
+  }
+  isNightMode = !isNightMode;  // Alterna el estado del modo
+}
+
+function redirectToMain() {
+    window.location.href = "aronet-main.html"; // Asegúrate de que esta ruta sea correcta
+  }
+
+// FIN DE FUNCIONES DE BOTONES FLOTANTES //
+
+// RECONOCIMIENTO DE VOZ // 
+     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'es-ES';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      console.log("Escuchando...");
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Error de reconocimiento de voz: ", event.error);
+    };
+
+    recognition.onresult = (event) => {
+      const command = event.results[0][0].transcript.toLowerCase();
+      console.log("Comando de voz: ", command);
+
+      if (command.includes("modo nocturno") || command.includes("noche")) {
+        if (!isNightMode) {
+          toggleNightMode();
+        }
+      } else if (transcript.includes('reportar incidencia')) {
+        reportIncident();
+      }
+    };
+
+    // Iniciar el reconocimiento de voz al cargar la página
+    recognition.start();
+    // FIN DE RECONOCIMIENTO DE VOZ
+
+    // REPORTAR INCIDENCIA //
+    function reportIncident() {
+      window.open("https://forms.gle/xHA1kTnEdZ4c57xw8", "_blank");
+    }
+
+    // REPORTAR INCIDENCIA //
+    function historial() {
+      window.open("", "_blank");
+    } 
+
+// Define tu escala de colores personalizada con opacidad
+function getColor(incidencias, maxIncidencias) {
+    // Calcula el porcentaje de incidencias
+    const percentage = incidencias / maxIncidencias;
+
+    // Define los colores según el porcentaje con opacidad (por ejemplo, 0.6)
+    if (percentage <= 0.2) {
+        return 'rgba(92, 178, 93, 0.5)'; // Verde con 20% de opacidad // 0% - 20% incidencias.
+    } else if (percentage <= 0.4) {
+        return 'rgba(15, 144, 21, 0.5)'; // Verde claro con 20% de opacidad // 20% - 40% incidencias
+    } else if (percentage <= 0.6) {
+        return 'rgba(255, 198, 89, 0.5)'; // Amarillo con 20% de opacidad // 40% - 60% incidencias
+    } else if (percentage <= 0.8) {
+        return 'rgba(239, 89, 38, 0.5)'; // Naranja con 20% de opacidad // 60% - 80% incidencias
+    } else {
+        return 'rgba(255, 87, 87, 0.5)'; // Rojo con 20% de opacidad // 80% - 100% incidencias
+    }
+}
+
+// Datos de los puntos de recogida
+const puntos = [
+    {
+        lat: 28.078166,
+        lng: -16.682503,
+        incidencias: 2000, // Número de incidencias actuales
+    maxIncidencias: 4256, // Número máximo esperado
+    incidenciasResueltas: 0, // Ejemplo de incidencias resueltas
+    incidenciasNoResueltas: 0 // Ejemplo de incidencias no resueltas
+    },
+    {
+      lat: 28.078255,
+        lng: -16.681473,
+        incidencias: 0, // Número de incidencias actuales
+    maxIncidencias: 4256, // Número máximo esperado
+    incidenciasResueltas: 0, // Ejemplo de incidencias resueltas
+    incidenciasNoResueltas: 0 // Ejemplo de incidencias no resueltas
+    },
+    // Añade más puntos aquí
+];
+
+// Añadir puntos al mapa
+puntos.forEach((punto) => {
+    const color = getColor(punto.incidencias, punto.maxIncidencias); // Calcula el color
+    const radio = 5 + (punto.incidencias / punto.maxIncidencias) * 1;  // Cambio de *2 a *1
+
+    // Crear un círculo para el marcador
+    const marker = L.circle([punto.lat, punto.lng], {
+        color: color,
+        fillColor: color,
+        fillOpacity: 1,
+        radius: radio,
+    })
+        .bindPopup(`
+            <b>Incidencias:</b> ${punto.incidencias}<br>
+            <b>Incidencias Resueltas:</b> ${punto.incidenciasResueltas}<br>
+            <b>Incidencias No Resueltas:</b> ${punto.incidenciasNoResueltas}
+        `)
+        .addTo(map);
+
+    // Añadir el número de incidencias sobre el marcador como texto
+    const incidenceText = L.divIcon({
+        className: 'incidencia-icon',
+        html: `<div style="color: black; font-size: 12px; text-align: center; font-weight: bold;">
+                ${punto.incidencias}
+              </div>`,
+        iconSize: [5, 5],
+        iconAnchor: [5, 5],
+    });
+
+    // Crear un marcador para el texto de las incidencias
+    L.marker([punto.lat, punto.lng], { icon: incidenceText }).addTo(map);
+});
+
+  </script>
+</body>
+</html>
