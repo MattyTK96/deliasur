@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
   
 <!-- CSS STYLES -->
 <style>
@@ -329,6 +330,12 @@ img {
     <img src="assets/img/flag_españa.png" alt="Flag 3" class="flag">
   </div>
 </div>
+
+<div id="qr-scanner-container" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 1000;">
+  <h3>Escanear QR</h3>
+  <video id="qr-video" style="width: 100%; height: auto;"></video>
+  <button onclick="closeQRScanner()">Cerrar</button>
+</div>
   
   <!-- FUNCIONES JAVASCRIPT -->
   <script>
@@ -389,10 +396,34 @@ containers.forEach((container, index) => {
     ${nearestInfo}
     <img src="${container.image}" alt="Contenedor">
      <div style="display: flex; justify-content: space-between; gap: 10px; ">
-    <button class="report-incident-btn" onclick="reportIncident()">¡REPORTAR INCIDENCIA!</button>
+    <button class="report-incident-btn" onclick="reportIncident()">REPORTAR</button>
+    <button class="report-incident-btn" onclick="scannerQR()">ESCANEAR QR</button>
      </div>
   `);
 });
+
+// Inicializa el escáner QR
+function scannerQR() {
+  const qrScannerContainer = document.getElementById("qr-scanner-container");
+  qrScannerContainer.style.display = "block"; // Muestra el contenedor del escáner
+
+  const videoElement = document.getElementById("qr-video");
+
+  // Inicia la captura de video
+  const qrScanner = new QrScanner(videoElement, (result) => {
+    console.log("QR Escaneado:", result);
+    alert("QR Escaneado: " + result.data); // Puedes hacer algo con los datos del QR
+    closeQRScanner(); // Cierra el escáner después de escanear el QR
+  });
+
+  qrScanner.start(); // Comienza el escaneo
+
+  // Detiene el escaneo y cierra el contenedor del escáner
+  function closeQRScanner() {
+    qrScanner.stop(); // Detiene la cámara
+    qrScannerContainer.style.display = "none"; // Oculta el contenedor
+  }
+}
 
     // INICIO DE FUNCIONES DE BOTONES FLOTANTES //
     function toggleStats() {
