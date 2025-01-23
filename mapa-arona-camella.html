@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/qr-scanner/qr-scanner.min.js"></script>
   
 <!-- CSS STYLES -->
 <style>
@@ -19,9 +18,39 @@
   font-family: Arial, sans-serif;
 }
 
+/* MODO NOCTURNO */
+/* Estilo de botones en modo nocturno */
+body.night-mode button {
+  background-color: #333333; /* Fondo oscuro para botones */
+  color: #FFFFFF; /* Texto claro en botones */
+  border: 1px solid #BB86FC; /* Borde morado */
+  border-radius: 4px; /* Bordes redondeados */
+  padding: 10px 20px; /* Relleno para hacer los botones más grandes y visibles */
+  font-size: 16px; /* Tamaño de fuente más legible */
+  cursor: pointer; /* Indicador de que es clickeable */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* Sombra sutil */
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease; /* Transición suave para todos los estados */
+}
+
+/* Efecto hover en los botones */
+body.night-mode button:hover {
+  background-color: #BB86FC; /* Fondo morado */
+  color: #121212; /* Texto oscuro en hover */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.6); /* Sombra más fuerte */
+  transform: translateY(-2px); /* Levece desplazamiento hacia arriba para darle un toque de interactividad */
+  border-color: #3700B3; /* Borde más oscuro en hover */
+}
+
+/* Efecto active (cuando se hace clic en el botón) */
+body.night-mode button:active {
+  transform: translateY(1px); /* Levece desplazamiento hacia abajo para imitar un clic */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6); /* Sombra más suave al hacer clic */
+}
+
 #map {
   width: 100%;
   height: 100vh;
+  z-index: 1;
 }
 
 .info {
@@ -277,7 +306,6 @@ img {
 <!-- END HEADER -->
 
 <body>
-
   <div id="map"></div>
 
   <!-- LEYENDA -->
@@ -329,12 +357,6 @@ img {
     <img src="assets/img/flag_canarias.svg" alt="Flag 2" class="flag">
     <img src="assets/img/flag_españa.png" alt="Flag 3" class="flag">
   </div>
-</div>
-
-<div id="qr-scanner-container" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 1000;">
-  <h3>Escanear QR</h3>
-  <video id="qr-video" style="width: 100%; height: auto;"></video>
-  <button onclick="closeQRScanner()">Cerrar</button>
 </div>
   
   <!-- FUNCIONES JAVASCRIPT -->
@@ -388,7 +410,7 @@ containers.forEach((container, index) => {
     ? `<div class="info-text"><strong>Depósito Cercano:</strong> ${nearestContainer.street} (${minDistance.toFixed(2)}m)</div>`
     : '';
 
-  marker.bindPopup(`
+    marker.bindPopup(`
     <div class="zona-recogida">${container.name}</div>
     <div class="info-text"><strong>Descripción:</strong> ${container.description}</div>
     <div class="info-text"><strong>Ubicación:</strong> ${container.street}</div>
@@ -396,34 +418,51 @@ containers.forEach((container, index) => {
     ${nearestInfo}
     <img src="${container.image}" alt="Contenedor">
      <div style="display: flex; justify-content: space-between; gap: 10px; ">
-    <button class="report-incident-btn" onclick="reportIncident()">REPORTAR</button>
-    <button class="report-incident-btn" onclick="scannerQR()">ESCANEAR QR</button>
+    <button class="report-incident-btn" onclick="reportIncident()">REPORTAR INCIDENCIA</button>
      </div>
   `);
+
+    // Variable para almacenar el estado del marcador (agrandado o no)
+    let isEnlarged = false;
+
+    // Animación al hacer clic en el marcador
+    marker.on('click', function () {
+      if (isEnlarged) {
+        // Si el marcador ya está agrandado, lo reducimos
+        this.setIcon(L.icon({
+          iconUrl: 'assets/img/container-icon.png',
+          iconSize: [40, 40], // Reducir al tamaño original
+          iconAnchor: [20, 40], // Ajustar el anclaje del icono
+          popupAnchor: [0, -40]
+        }));
+        isEnlarged = false; // Actualizar el estado
+      } else {
+        // Si el marcador no está agrandado, lo aumentamos
+        this.setIcon(L.icon({
+          iconUrl: 'assets/img/container-icon.png',
+          iconSize: [60, 60], // Aumentar el tamaño
+          iconAnchor: [30, 60], // Cambiar el anclaje del icono
+          popupAnchor: [0, -60]
+        }));
+        isEnlarged = true; // Actualizar el estado
+      }
+    });
+
+    // Al hacer clic en cualquier parte del mapa (excepto el marcador), el tamaño vuelve a la normalidad
+    map.on('click', function () {
+      if (isEnlarged) {
+        // Si el marcador está agrandado, lo reducimos
+        marker.setIcon(L.icon({
+          iconUrl: 'assets/img/container-icon.png',
+          iconSize: [40, 40], // Tamaño original
+          iconAnchor: [20, 40], // Ajustar el anclaje del icono
+          popupAnchor: [0, -40]
+        }));
+        isEnlarged = false; // Actualizar el estado
+      }
+    });
+
 });
-
-// Inicializa el escáner QR
-function scannerQR() {
-  const qrScannerContainer = document.getElementById("qr-scanner-container");
-  qrScannerContainer.style.display = "block"; // Muestra el contenedor del escáner
-
-  const videoElement = document.getElementById("qr-video");
-
-  // Inicia la captura de video
-  const qrScanner = new QrScanner(videoElement, (result) => {
-    console.log("QR Escaneado:", result);
-    alert("QR Escaneado: " + result.data); // Puedes hacer algo con los datos del QR
-    closeQRScanner(); // Cierra el escáner después de escanear el QR
-  });
-
-  qrScanner.start(); // Comienza el escaneo
-
-  // Detiene el escaneo y cierra el contenedor del escáner
-  function closeQRScanner() {
-    qrScanner.stop(); // Detiene la cámara
-    qrScannerContainer.style.display = "none"; // Oculta el contenedor
-  }
-}
 
     // INICIO DE FUNCIONES DE BOTONES FLOTANTES //
     function toggleStats() {
@@ -591,7 +630,6 @@ puntos.forEach((punto) => {
     // Crear un marcador para el texto de las incidencias
     L.marker([punto.lat, punto.lng], { icon: incidenceText }).addTo(map);
 });
-
   </script>
 </body>
 </html>
