@@ -10,6 +10,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
   <script src="https://weatherwidget.io/js/widget.min.js"></script>
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Blow+Brush&display=swap" rel="stylesheet">
 
 <!-- CSS STYLES -->
 <style>
@@ -72,6 +73,32 @@
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
   transform: translateY(-5px);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .floating-button-contact {
   background-color: #1E88E5;
@@ -379,6 +406,7 @@
     .main-container h1 {
       font-size: 100px;
       margin-bottom: 20px;
+      font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
     }
 
     /* Subtítulo */
@@ -780,14 +808,8 @@
 
   <div id="infoBox" class="info-box">
     <h2>DERECHOS DE AUTOR</h2>
-    <p><strong>Desarrollado por:</strong> Asociación "DELIA Sur"</p>
-    <p><strong>Profesionales Implicados:</strong>
-    <li>Carmen D. Reverón Acosta</li>
-    <li>Helga Isabel Leo</li>
-    <li>Adrián Piñeiro Hernández</li>
-    <li>Ángel Mora Rodríguez</li>
-    <li>Mateusz T. Krzysiek</li>
-  </p>
+    <p><strong>Desarrollado por:</strong> Mateusz T. Krzysiek</p>
+    <p><strong>Entidad Colaboradora:</strong> Asociación "DELIA Sur"</p>
     <p><strong>Fecha de Creación:</strong> Enero, 2025</p>
     <p><strong>Contacto:</strong> deliasur.info@gmail.com</p>
     <button class="close-info-btn" onclick="closeInfo()">Cerrar</button>
@@ -831,10 +853,13 @@
       addMessage("Tú", userMessage);
       userInput.value = "";
 
-      // Simular respuesta de IA (reemplazar por API real)
+      // Generar una respuesta del asistente basada en el mensaje del usuario
       setTimeout(() => {
-        addMessage("Asistente", "Esta es una respuesta de ejemplo.");
-      }, 1000);
+        const responses = generateResponses(userMessage);
+        responses.forEach(response => {
+          addMessage("Asistente", response);
+        });
+      }, Math.random() * 1000 + 500);  // Respuesta aleatoria entre 500ms a 1500ms
     }
   }
 
@@ -844,18 +869,26 @@
     messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight;
   }
+
+  function generateResponses(userMessage) {
+    const questions = userMessage.split("?").map(q => q.trim()).filter(q => q.length > 0); // Dividir en preguntas
+    const responses = questions.map(question => generateResponse(question));
+
+    return responses;
+  }
+
+  function generateResponse(userMessage) {
+    // Respuestas predeterminadas basadas en lo que el usuario diga
+    if (userMessage.toLowerCase().includes("hola")) {
+      return "¡Hola! ¿Cómo puedo ayudarte hoy?";
+    } else if (userMessage.toLowerCase().includes("no veo el mapeo")) {
+      return `Debes hacer click en el botón llamado "CARGAR MAPAS" y luego elegir una de las localidades del municipio${new Date().toLocaleTimeString()}`;
+      return "Lo siento, no entiendo tu pregunta. ¿Puedes reformularla?";
+    }
+  }
 });
 
-// ENDCHATBOX //
-
-
-
-
-
-
-
-
-
+// END CHATBOX //
 
     // INICIO DE FUNCIONES DE BOTONES FLOTANTES //
     
@@ -935,7 +968,6 @@ function selectLocality(locality) {
    
     // Cierra el modal después de la selección
     closeLocalitiesModal();
-
 
   </script>
 </body>
